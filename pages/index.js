@@ -4,17 +4,10 @@ import { useEffect, useState } from "react";
 import { questionsCollection, usersCollection } from "../firebaseConfig";
 import Link from "next/link";
 import { useUser } from "@auth0/nextjs-auth0";
-import Deso from "deso-protocol";
 
 
 export default function Home() {
   const { user } = useUser();
-
-  async function logout() {
-    const deso = new Deso();
-    const publicKey = deso.identity.getUserKey();
-    await deso.identity.logout(publicKey);
-  }
 
   async function getQuestions() {
     const qRef = questionsCollection;
@@ -59,7 +52,6 @@ export default function Home() {
       <h1 className={`${styles.title} font-medium`}>
         Recent Questions
       </h1>
-      <button onClick={logout}>logout</button>
       <div>
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">{<ul role="list"
                                                                 className="divide-y divide-gray-200">
