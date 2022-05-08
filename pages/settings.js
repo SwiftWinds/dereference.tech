@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import PhoneNumInput from "../components/PhoneNumInput";
 
-export default function settings() {
+export default function Settings() {
   const [bountyThreshold, setBountyThreshold] = useState(0);
   const [skills, setSkills] = useState([]);
   const [phoneNum, setPhoneNum] = useState("");

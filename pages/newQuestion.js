@@ -5,7 +5,7 @@ import { questionsCollection } from "../firebaseConfig";
 import { useRouter } from "next/router";
 import BountyInput from "../components/BountyInput";
 
-export default function newQuestion() {
+export default function NewQuestion() {
   const { user } = useUser();
   const router = useRouter();
   const [title, setTitle] = useState("");
@@ -45,7 +45,7 @@ export default function newQuestion() {
                   type="text"
                   name="title"
                   id="title"
-                  className="w-60 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  className="w-60 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-300 rounded-md"
                   placeholder="How do I ..."
                 />
               </div>

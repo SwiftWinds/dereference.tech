@@ -5,5 +5,36 @@
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099,
+      "host": "127.0.0.1"
+    },
+    "functions": {
+      "port": 5001,
+      "host": "127.0.0.1"
+    },
+    "firestore": {
+      "port": 8080,
+      "host": "127.0.0.1"
+    },
+    "hosting": {
+      "port": 5001
+    },
+    "ui": {
+      "enabled": true
+    },
+    "pubsub": {
+      "port": 8085,
+      "host": "127.0.0.1"
+    },
+    "storage": {
+      "port": 9199,
+      "host": "127.0.0.1"
+    }
+  },
+  "storage": {
+    "rules": "storage.rules"
   }
 }

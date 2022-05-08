@@ -70,7 +70,7 @@ export default function QuestionPage() {
       const user = await getDoc(userRef);
       publicKey = user.data().publicKey;
       if (!publicKey) {
-        await deso.identity.login();
+        await deso.identity.login(2);
         publicKey = deso.identity.getUserKey();
         await setDoc(userRef, { publicKey }, { merge: true });
       }
@@ -102,15 +102,16 @@ export default function QuestionPage() {
       const user = await getDoc(userRef);
       publicKey = user.data().publicKey;
       if (!publicKey) {
-        await deso.identity.login();
+        await deso.identity.login(2);
         publicKey = deso.identity.getUserKey();
         await setDoc(userRef, { publicKey }, { merge: true });
       }
     }
+    console.log(question.bounty);
     const request = {
       "SenderPublicKeyBase58Check": publicKey,
       "RecipientPublicKeyOrUsername": answer.publicKey,
-      "AmountNanos": 1000,
+      "AmountNanos": question.bounty * Math.pow(10, 9),
       "MinFeeRateNanosPerKB": 1000,
     };
     console.log(request);
