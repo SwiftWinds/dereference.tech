@@ -5,7 +5,7 @@ import { questionsCollection } from "../firebaseConfig";
 import { useRouter } from "next/router";
 import BountyInput from "../components/BountyInput";
 
-export default function newQuestion() {
+export default function NewQuestion() {
   const { user } = useUser();
   const router = useRouter();
   const [title, setTitle] = useState("");
