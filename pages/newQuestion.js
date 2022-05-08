@@ -45,7 +45,7 @@ export default function NewQuestion() {
                   type="text"
                   name="title"
                   id="title"
-                  className="w-60 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  className="w-60 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-300 rounded-md"
                   placeholder="How do I ..."
                 />
               </div>
