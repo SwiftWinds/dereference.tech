@@ -1,10 +1,11 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore";
-import { questionsCollection } from "../../firebaseConfig";
+import { questionsCollection, usersCollection } from "../../firebaseConfig";
 import PostDivider from "../../components/PostDivider";
 import AddAnswer from "../../components/AddAnswer";
 import { useUser } from "@auth0/nextjs-auth0";
+import Deso from "deso-protocol";
 
 export default function QuestionPage() {
   const { user } = useUser();
@@ -40,11 +41,23 @@ export default function QuestionPage() {
     if (!id) {
       return;
     }
+    const deso = new Deso();
+    let privateKey = deso.identity.getUserKey();
+    if (!privateKey) {
+      const userRef = doc(usersCollection, user.sub);
+      const user = await getDoc(userRef);
+      privateKey = user.data().privateKey;
+      if (!privateKey) {
+        await deso.identity.login();
+      }
+      privateKey = deso.identity.getUserKey();
+    }
     const answersRef = collection(doc(questionsCollection, id), "answers");
     addDoc(answersRef, {
       body: yourAnswer,
       score: 0,
       user: user?.nickname || user?.sub,
+      privateKey,
     });
     await fetchAnswers();
   }

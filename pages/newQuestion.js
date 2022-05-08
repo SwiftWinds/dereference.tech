@@ -19,6 +19,7 @@ export default function newQuestion() {
     }
     await addDoc(questionsCollection, {
       title,
+      bounty,
       body,
       user: user?.nickname || user?.sub,
     });
@@ -50,7 +51,8 @@ export default function newQuestion() {
               </div>
             </div>
           </div>}
-          <BountyInput />
+          <BountyInput value={bounty}
+                       onChange={(e) => setBounty(Number(e.target.value))} />
         </div>
         <div className="px-4 py-5 sm:p-6">{<div>
           <label htmlFor="question"
