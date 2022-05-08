@@ -1,14 +1,14 @@
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { useUser } from "@auth0/nextjs-auth0";
+import Link from "next/link";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 const loggedInNav = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "#" },
+  { name: "Settings", href: "/settings" },
   { name: "Sign out", href: "/api/auth/logout" },
 ];
 
@@ -33,15 +33,16 @@ export default function DropdownMenu() {
       {userNavigation.map((item) => (
         <Menu.Item key={item.name}>
           {({ active }) => (
-            <a
-              href={item.href}
-              className={classNames(
-                active ? "bg-gray-100" : "",
-                "block py-2 px-4 text-sm text-gray-700",
-              )}
-            >
-              {item.name}
-            </a>
+            <Link href={item.href}>
+              <a
+                className={classNames(
+                  active ? "bg-gray-100" : "",
+                  "block py-2 px-4 text-sm text-gray-700",
+                )}
+              >
+                {item.name}
+              </a>
+            </Link>
           )}
         </Menu.Item>
       ))}

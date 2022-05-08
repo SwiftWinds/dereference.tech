@@ -3,6 +3,7 @@ import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
 import Search from "./Search";
 import ProfileDropdown from "./navigation/ProfileDropdown";
 import { useUser } from "@auth0/nextjs-auth0";
+import Link from "next/link";
 
 const userNavigation = [
   { name: "Your Profile", href: "#" },
@@ -16,6 +17,7 @@ function classNames(...classes) {
 
 export default function Nav() {
   const { user } = useUser();
+  console.log(user);
   return (
     <>
       {/* When the mobile menu is open, add `overflow-hidden` to the `body` element to prevent double scrollbars */}
@@ -36,9 +38,11 @@ export default function Nav() {
                 <div
                   className="flex md:absolute md:left-0 md:inset-y-0 lg:static xl:col-span-2">
                   <div className="flex-shrink-0 flex items-center">
-                    <a className="font-bold text-2xl" href="#">
-                      Dereference
-                    </a>
+                    <Link href="/">
+                      <a className="font-bold text-2xl">
+                        Dereference
+                      </a>
+                    </Link>
                   </div>
                 </div>
                 <Search />
