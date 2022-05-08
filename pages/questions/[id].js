@@ -1,12 +1,14 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { questionsCollection } from "../../firebaseConfig";
+import PostDivider from "../../components/PostDivider";
 
 export default function QuestionPage() {
   const router = useRouter();
   const { id } = router.query;
   const [question, setQuestion] = useState(null);
+  const [answers, setAnswers] = useState([]);
 
   async function fetchQuestion() {
     if (!id) {
@@ -17,8 +19,18 @@ export default function QuestionPage() {
     setQuestion(question.data());
   }
 
+  async function fetchAnswers() {
+    if (!id) {
+      return;
+    }
+    const answersRef = collection(doc(questionsCollection, id), "answers");
+    const answers = await getDocs(answersRef);
+    setAnswers(answers.docs.map(answer => answer.data()));
+  }
+
   useEffect(function() {
     fetchQuestion();
+    fetchAnswers();
   }, [id]);
 
   return <>
@@ -42,6 +54,30 @@ export default function QuestionPage() {
         </div>
       </main>
     </div>
+    <PostDivider />
+    <ul role="list"
+        className="divide-y divide-gray-200">
+      {answers.map((answer) => (
+        <li
+          key={answer.id}
+          className="relative bg-white py-5 px-4 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600"
+        >
+          <div className="flex justify-between space-x-3">
+            <div className="min-w-0 flex-1">
+              <span className="absolute inset-0" aria-hidden="true" />
+              <p
+                className="text-sm font-medium text-gray-900 truncate">{answer.user}</p>
+              <p
+                className="text-sm text-gray-500 truncate">{answer.score}</p>
+            </div>
+          </div>
+          <div className="mt-1">
+            <p
+              className="line-clamp-2 text-sm text-gray-600">{answer.body}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
   </>;
   ;
 }
