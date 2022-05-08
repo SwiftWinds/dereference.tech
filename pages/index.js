@@ -15,7 +15,6 @@ export default function Home() {
     const qRef = questionsCollection;
     const snapshot = await getDocs(qRef);
     setQuestions(snapshot.docs.map(doc => ({id: 1, title: doc.data().title, asker: doc.data().user, preview: doc.data().body})))
-    console.log(questions)
   }
 
   useEffect(function() {
