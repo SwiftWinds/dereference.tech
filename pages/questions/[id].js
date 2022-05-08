@@ -1,14 +1,18 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { questionsCollection } from "../../firebaseConfig";
 import PostDivider from "../../components/PostDivider";
+import AddAnswer from "../../components/AddAnswer";
+import { useUser } from "@auth0/nextjs-auth0";
 
 export default function QuestionPage() {
+  const { user } = useUser();
   const router = useRouter();
   const { id } = router.query;
   const [question, setQuestion] = useState(null);
   const [answers, setAnswers] = useState([]);
+  const [yourAnswer, setYourAnswer] = useState(null);
 
   async function fetchQuestion() {
     if (!id) {
@@ -25,7 +29,24 @@ export default function QuestionPage() {
     }
     const answersRef = collection(doc(questionsCollection, id), "answers");
     const answers = await getDocs(answersRef);
-    setAnswers(answers.docs.map(answer => answer.data()));
+    setAnswers(answers.docs.map(answer => answer.data()).sort((a, b) => b.score - a.score));
+  }
+
+  async function handleAddAnswer(e) {
+    e.preventDefault();
+    if (!yourAnswer) {
+      return;
+    }
+    if (!id) {
+      return;
+    }
+    const answersRef = collection(doc(questionsCollection, id), "answers");
+    addDoc(answersRef, {
+      body: yourAnswer,
+      score: 0,
+      user: user?.nickname || user?.sub,
+    });
+    await fetchAnswers();
   }
 
   useEffect(function() {
@@ -56,19 +77,19 @@ export default function QuestionPage() {
     </div>
     <PostDivider />
     <ul role="list"
-        className="divide-y divide-gray-200">
+        className="divide-y divide-gray-200 space-y-3">
       {answers.map((answer) => (
         <li
           key={answer.id}
-          className="relative bg-white py-5 px-4 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600"
+          className="bg-white shadow overflow-hidden px-4 py-4 sm:px-6 sm:rounded-md relative bg-white py-5 px-4 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600"
         >
           <div className="flex justify-between space-x-3">
             <div className="min-w-0 flex-1">
               <span className="absolute inset-0" aria-hidden="true" />
               <p
-                className="text-sm font-medium text-gray-900 truncate">{answer.user}</p>
+                className="text-lg font-medium text-gray-900 truncate">{answer.user}</p>
               <p
-                className="text-sm text-gray-500 truncate">{answer.score}</p>
+                className="text-sm text-gray-500 truncate">{answer.score} upvotes</p>
             </div>
           </div>
           <div className="mt-1">
@@ -78,6 +99,17 @@ export default function QuestionPage() {
         </li>
       ))}
     </ul>
+    <div className="my-5 max-w-7xl mx-auto sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <div
+          className="flex flex-col space-y-2 font-extrabold text-3xl mb-5">
+          Your answer
+        </div>
+        <AddAnswer value={yourAnswer}
+                   onChange={e => setYourAnswer(e.target.value)}
+                   onClick={handleAddAnswer} />
+      </div>
+    </div>
   </>;
   ;
 }

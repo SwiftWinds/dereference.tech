@@ -18,7 +18,7 @@ export default function newQuestion() {
     await addDoc(questionsCollection, {
       title,
       body,
-      user: user.sub,
+      user: user?.nickname || user?.sub,
     });
     await router.push("/");
   }

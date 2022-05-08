@@ -5,17 +5,23 @@ import { usersCollection } from "../firebaseConfig";
 import { useUser } from "@auth0/nextjs-auth0";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import PhoneNumInput from "../components/PhoneNumInput";
 
 export default function settings() {
   const [bountyThreshold, setBountyThreshold] = useState(0);
   const [skills, setSkills] = useState([]);
+  const [phoneNum, setPhoneNum] = useState("");
   const [userRef, setUserRef] = useState(null);
   const { user } = useUser();
   const router = useRouter();
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await setDoc(userRef, { bountyThreshold, skills }, { merge: true });
+    await setDoc(userRef, {
+      bountyThreshold,
+      skills,
+      phoneNum: `+${phoneNum}`,
+    }, { merge: true });
     await router.push("/");
   }
 
@@ -27,9 +33,10 @@ export default function settings() {
     const userRef = doc(usersCollection, user.sub);
     setUserRef(userRef);
     const userData = await getDoc(userRef);
-    const { bountyThreshold, skills } = userData.data();
+    const { bountyThreshold, skills, phoneNum } = userData.data();
     setBountyThreshold(bountyThreshold);
     setSkills(skills);
+    setPhoneNum(phoneNum);
   }
 
   useEffect(() => {
@@ -61,6 +68,9 @@ export default function settings() {
             className="mt-1 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md"
           />
         </div>
+
+        <PhoneNumInput value={phoneNum}
+                       onChange={e => setPhoneNum(e.target.value)} />
 
         <div className="flex justify-end">
           <Link href="/">
