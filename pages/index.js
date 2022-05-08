@@ -2,6 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import Profile from "../components/Profile";
+import Link from 'next/link';
 
 export default function Home() {
   return (<div className={styles.container}>
@@ -13,45 +14,20 @@ export default function Home() {
 
     <main className={styles.main}>
       <h1 className={styles.title}>
-        Welcome to <a href="https://nextjs.org">Next.js!</a>
+        Welcome to DeReference.tech
       </h1>
 
-      <p className={styles.description}>
-        Get started by editing{" "}
-        <code className={styles.code}>pages/index.js</code>
-      </p>
+      <ul role="list" className="space-y-3">
+      {items.map((item) => (
+        <li key={item.id} className="bg-white shadow overflow-hidden rounded-md px-6 py-4">
+          {/* Your content */}
+        </li>
+      ))}
+    </ul>
 
       <div className={styles.grid}>
-        <a href="/api/auth/login">Login</a>
-        <a href="/api/auth/logout">Logout</a>
         <Profile />
-        <a href="https://nextjs.org/docs" className={styles.card}>
-          <h2>Documentation &rarr;</h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a href="https://nextjs.org/learn" className={styles.card}>
-          <h2>Learn &rarr;</h2>
-          <p>Learn about Next.js in an interactive course with quizzes!</p>
-        </a>
-
-        <a
-          href="https://github.com/vercel/next.js/tree/canary/examples"
-          className={styles.card}
-        >
-          <h2>Examples &rarr;</h2>
-          <p>Discover and deploy boilerplate example Next.js projects.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          className={styles.card}
-        >
-          <h2>Deploy &rarr;</h2>
-          <p>
-            Instantly deploy your Next.js site to a public URL with Vercel.
-          </p>
-        </a>
+        
       </div>
     </main>
 
