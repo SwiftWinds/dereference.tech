@@ -1,11 +1,14 @@
 import styles from "../styles/Home.module.css";
-import { getDocs } from "firebase/firestore";
+import { doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { questionsCollection } from "../firebaseConfig";
+import { questionsCollection, usersCollection } from "../firebaseConfig";
 import Link from "next/link";
+import { useUser } from "@auth0/nextjs-auth0";
 
 
 export default function Home() {
+  const { user } = useUser();
+
   async function getQuestions() {
     const qRef = questionsCollection;
     const snapshot = await getDocs(qRef);
@@ -18,9 +21,28 @@ export default function Home() {
     console.log(questions);
   }
 
+  async function createUser() {
+    if (!user) {
+      return;
+    }
+    const userRef = doc(usersCollection, user.sub);
+    const userDoc = await getDoc(userRef);
+    console.log(userRef.id);
+    console.log({ ...userDoc.data() });
+    if (!userDoc.exists()) {
+      await setDoc(userRef, {
+        seenAnswers: [],
+        skills: [],
+      });
+    } else {
+      console.log("user exists");
+    }
+  }
+
   useEffect(function() {
     getQuestions();
-  }, []);
+    createUser();
+  }, [user]);
 
   const [questions, setQuestions] = useState([]);
 

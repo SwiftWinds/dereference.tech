@@ -1,6 +1,15 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { questionsCollection, usersCollection } from "../../firebaseConfig";
 import PostDivider from "../../components/PostDivider";
 import AddAnswer from "../../components/AddAnswer";
@@ -28,9 +37,20 @@ export default function QuestionPage() {
     if (!id) {
       return;
     }
+    if (!user) {
+      return;
+    }
     const answersRef = collection(doc(questionsCollection, id), "answers");
     const answers = await getDocs(answersRef);
-    setAnswers(answers.docs.map(answer => answer.data()).sort((a, b) => b.score - a.score));
+    const userRef = doc(usersCollection, user.sub);
+    const userDoc = await getDoc(userRef);
+    const { seenAnswers } = userDoc.data();
+    console.log("seenAnswers", seenAnswers);
+    setAnswers(answers.docs.map(answer => ({
+      id: answer.id,
+      ...answer.data(),
+      seen: seenAnswers.includes(answer.id),
+    })).sort((a, b) => b.score - a.score));
   }
 
   async function handleAddAnswer(e) {
@@ -42,30 +62,67 @@ export default function QuestionPage() {
       return;
     }
     const deso = new Deso();
-    let privateKey = deso.identity.getUserKey();
-    if (!privateKey) {
-      const userRef = doc(usersCollection, user.sub);
+    let publicKey = deso.identity.getUserKey();
+    const userRef = doc(usersCollection, user.sub);
+    if (publicKey) {
+      await setDoc(userRef, { publicKey }, { merge: true });
+    } else {
       const user = await getDoc(userRef);
-      privateKey = user.data().privateKey;
-      if (!privateKey) {
+      publicKey = user.data().publicKey;
+      if (!publicKey) {
         await deso.identity.login();
+        publicKey = deso.identity.getUserKey();
+        await setDoc(userRef, { publicKey }, { merge: true });
       }
-      privateKey = deso.identity.getUserKey();
     }
     const answersRef = collection(doc(questionsCollection, id), "answers");
-    addDoc(answersRef, {
+    const answerRef = await addDoc(answersRef, {
       body: yourAnswer,
       score: 0,
       user: user?.nickname || user?.sub,
-      privateKey,
+      publicKey,
     });
+    await updateDoc(userRef, { seenAnswers: arrayUnion(answerRef.id) });
+    await fetchAnswers();
+  }
+
+  async function handleRevealAnswer(e) {
+    const answerId = e.target.getAttribute("answerId");
+    e.preventDefault();
+    console.log(answers);
+    console.log("answerId", answerId);
+    const answer = answers.find(answer => answer.id === answerId);
+    console.log("answer", answer);
+    const deso = new Deso();
+    let publicKey = deso.identity.getUserKey();
+    const userRef = doc(usersCollection, user.sub);
+    if (publicKey) {
+      await setDoc(userRef, { publicKey }, { merge: true });
+    } else {
+      const user = await getDoc(userRef);
+      publicKey = user.data().publicKey;
+      if (!publicKey) {
+        await deso.identity.login();
+        publicKey = deso.identity.getUserKey();
+        await setDoc(userRef, { publicKey }, { merge: true });
+      }
+    }
+    const request = {
+      "SenderPublicKeyBase58Check": publicKey,
+      "RecipientPublicKeyOrUsername": answer.publicKey,
+      "AmountNanos": 1,
+      "MinFeeRateNanosPerKB": 1000,
+    };
+    console.log(request);
+    await deso.wallet.sendDesoRequest(request);
+    await updateDoc(userRef, { seenAnswers: arrayUnion(answerId) });
     await fetchAnswers();
   }
 
   useEffect(function() {
     fetchQuestion();
     fetchAnswers();
-  }, [id]);
+  }, [id, user]);
 
   return <>
     <div className="py-10">
@@ -98,7 +155,6 @@ export default function QuestionPage() {
         >
           <div className="flex justify-between space-x-3">
             <div className="min-w-0 flex-1">
-              <span className="absolute inset-0" aria-hidden="true" />
               <p
                 className="text-lg font-medium text-gray-900 truncate">{answer.user}</p>
               <p
@@ -106,8 +162,22 @@ export default function QuestionPage() {
             </div>
           </div>
           <div className="mt-1">
-            <p
-              className="line-clamp-2 text-sm text-gray-600">{answer.body}</p>
+            {answer.seen ?
+              <p
+                className="line-clamp-2 text-sm text-gray-600">{answer.body}</p> :
+              <>
+                <div className="grid place-items-center w-100 h-12 mx-auto">
+                  <div
+                    className="w-100 mx-auto">
+                    <button
+                      answerId={answer.id}
+                      onClick={handleRevealAnswer}
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                      Reveal answer
+                    </button>
+                  </div>
+                </div>
+              </>}
           </div>
         </li>
       ))}
