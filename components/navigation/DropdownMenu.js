@@ -1,17 +1,24 @@
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
+import { useUser } from "@auth0/nextjs-auth0";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const userNavigation = [
+const loggedInNav = [
   { name: "Your Profile", href: "#" },
   { name: "Settings", href: "#" },
   { name: "Sign out", href: "/api/auth/logout" },
 ];
 
+const loggedOutNav = [
+  { name: "Sign in", href: "/api/auth/login" },
+];
+
 export default function DropdownMenu() {
+  const { user } = useUser();
+  const userNavigation = user ? loggedInNav : loggedOutNav;
   return <Transition
     as={Fragment}
     enter="transition ease-out duration-100"
