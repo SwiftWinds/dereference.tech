@@ -52,7 +52,6 @@ export default function Home() {
       <h1 className={`${styles.title} font-medium`}>
         Recent Questions
       </h1>
-
       <div>
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">{<ul role="list"
                                                                 className="divide-y divide-gray-200">

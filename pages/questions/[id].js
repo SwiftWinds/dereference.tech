@@ -110,7 +110,7 @@ export default function QuestionPage() {
     const request = {
       "SenderPublicKeyBase58Check": publicKey,
       "RecipientPublicKeyOrUsername": answer.publicKey,
-      "AmountNanos": 1,
+      "AmountNanos": 1000,
       "MinFeeRateNanosPerKB": 1000,
     };
     console.log(request);
