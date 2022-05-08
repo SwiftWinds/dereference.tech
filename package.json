@@ -14,9 +14,11 @@
     "@heroicons/react": "^1.0.6",
     "@tailwindcss/forms": "^0.5.1",
     "firebase": "^9.8.0",
+    "monkeylearn": "^3.4.0",
     "next": "12.1.6",
     "react": "18.1.0",
-    "react-dom": "18.1.0"
+    "react-dom": "18.1.0",
+    "twilio": "^3.77.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.7",
