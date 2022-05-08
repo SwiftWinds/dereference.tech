@@ -54,7 +54,7 @@ export default function settings() {
           </label>
           <input
             value={skills.join(", ")}
-            onChange={e => setSkills(e.target.value.split(",").map(s => s.trim()))}
+            onChange={e => setSkills(e.target.value.split(", "))}
             type="text"
             name="tags"
             id="tags"
