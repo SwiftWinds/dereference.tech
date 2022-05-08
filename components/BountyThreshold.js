@@ -1,4 +1,4 @@
-export default function BountyThreshold() {
+export default function BountyThreshold({ value, onChange }) {
   return <div>
     <label htmlFor="price" className="block text-sm font-medium text-gray-700">
       Bounty minimum
@@ -9,6 +9,8 @@ export default function BountyThreshold() {
         <span className="text-gray-500 sm:text-sm">$</span>
       </div>
       <input
+        value={value}
+        onChange={onChange}
         type="text"
         name="price"
         id="price"

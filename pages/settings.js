@@ -1,66 +1,40 @@
 import BountyThreshold from "../components/BountyThreshold";
-
-const user = {
-  name: "Floyd Miles",
-  email: "floy.dmiles@example.com",
-  imageUrl:
-    "https://images.unsplash.com/photo-1463453091185-61582044d556?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-};
-const navigation = [
-  { name: "Dashboard", href: "#" },
-  { name: "Jobs", href: "#" },
-  { name: "Applicants", href: "#" },
-  { name: "Company", href: "#" },
-];
-const breadcrumbs = [
-  { name: "Projects", href: "#", current: false },
-  { name: "Project Nero", href: "#", current: true },
-];
-const userNavigation = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "#" },
-  { name: "Sign out", href: "#" },
-];
-const team = [
-  {
-    name: "Calvin Hawkins",
-    email: "calvin.hawkins@example.com",
-    imageUrl:
-      "https://images.unsplash.com/photo-1513910367299-bce8d8a0ebf6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Bessie Richards",
-    email: "bessie.richards@example.com",
-    imageUrl:
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Floyd Black",
-    email: "floyd.black@example.com",
-    imageUrl:
-      "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-];
-const prefs = [
-  {
-    name: "Public access",
-    description: "This project would be available to anyone who has the link",
-  },
-  {
-    name: "Private to Project Members",
-    description: "Only members of this project would be able to access",
-  },
-  {
-    name: "Private to you",
-    description: "You are the only one able to access this project",
-  },
-];
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { usersCollection } from "../firebaseConfig";
+import { useUser } from "@auth0/nextjs-auth0";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 export default function settings() {
+  const [bountyThreshold, setBountyThreshold] = useState(0);
+  const [skills, setSkills] = useState([]);
+  const [userRef, setUserRef] = useState(null);
+  const { user } = useUser();
+  const router = useRouter();
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    await setDoc(userRef, { bountyThreshold, skills }, { merge: true });
+    await router.push("/");
+  }
+
+  async function getSettings() {
+    if (!user) {
+      return;
+    }
+
+    const userRef = doc(usersCollection, user.sub);
+    setUserRef(userRef);
+    const userData = await getDoc(userRef);
+    const { bountyThreshold, skills } = userData.data();
+    setBountyThreshold(bountyThreshold);
+    setSkills(skills);
+  }
+
+  useEffect(() => {
+    getSettings();
+  }, [user]);
 
   return <main className="max-w-lg mx-auto pt-10 pb-12 px-4 lg:pb-16">
     <form>
@@ -70,7 +44,8 @@ export default function settings() {
             Settings</h1>
         </div>
 
-        <BountyThreshold />
+        <BountyThreshold value={bountyThreshold}
+                         onChange={e => setBountyThreshold(Number(e.target.value))} />
 
         <div>
           <label htmlFor="tags"
@@ -78,6 +53,8 @@ export default function settings() {
             Skills
           </label>
           <input
+            value={skills.join(", ")}
+            onChange={e => setSkills(e.target.value.split(",").map(s => s.trim()))}
             type="text"
             name="tags"
             id="tags"
@@ -86,13 +63,15 @@ export default function settings() {
         </div>
 
         <div className="flex justify-end">
+          <Link href="/">
+            <a
+              className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Cancel
+            </a>
+          </Link>
           <button
-            type="button"
-            className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Cancel
-          </button>
-          <button
+            onClick={handleSubmit}
             type="submit"
             className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
